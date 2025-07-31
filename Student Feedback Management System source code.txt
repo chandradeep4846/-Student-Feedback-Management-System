@@ -1,0 +1,166 @@
+/* === index.html === */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Feedback System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome to the Feedback Portal</h1>
+  <a href="feedback.html">Submit Feedback</a> |
+  <a href="admin.php">Admin Login</a>
+</body>
+</html>
+
+
+/* === feedback.html === */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Feedback</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Submit Your Feedback</h2>
+  <form action="submit_feedback.php" method="POST">
+    <label for="course">Course:</label>
+    <input type="text" name="course" required><br>
+
+    <label for="instructor">Instructor:</label>
+    <input type="text" name="instructor" required><br>
+
+    <label for="message">Feedback:</label><br>
+    <textarea name="message" rows="5" required></textarea><br>
+
+    <button type="submit">Submit</button>
+  </form>
+  <a href="index.html">Back</a>
+</body>
+</html>
+
+
+/* === admin.php === */
+<?php
+// Simple admin page
+include 'db/connection.php';
+$query = "SELECT * FROM feedback ORDER BY created_at DESC";
+$result = mysqli_query($conn, $query);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>All Feedback</h2>
+  <table border="1">
+    <tr>
+      <th>ID</th><th>Course</th><th>Instructor</th><th>Feedback</th><th>Date</th>
+    </tr>
+    <?php while($row = mysqli_fetch_assoc($result)): ?>
+      <tr>
+        <td><?= $row['id'] ?></td>
+        <td><?= $row['course'] ?></td>
+        <td><?= $row['instructor'] ?></td>
+        <td><?= $row['message'] ?></td>
+        <td><?= $row['created_at'] ?></td>
+      </tr>
+    <?php endwhile; ?>
+  </table>
+  <a href="index.html">Back</a>
+</body>
+</html>
+
+
+/* === submit_feedback.php === */
+<?php
+include 'db/connection.php';
+$course = $_POST['course'];
+$instructor = $_POST['instructor'];
+$message = $_POST['message'];
+
+$sql = "INSERT INTO feedback (course, instructor, message) VALUES (?, ?, ?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("sss", $course, $instructor, $message);
+
+if ($stmt->execute()) {
+  echo "<h3>Thank you for your feedback!</h3><a href='index.html'>Back</a>";
+} else {
+  echo "Error: " . $stmt->error;
+}
+$stmt->close();
+$conn->close();
+?>
+
+
+/* === db/connection.php === */
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "feedback_db";
+
+$conn = new mysqli($servername, $username, $password, $database);
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
+?>
+
+
+/* === style.css === */
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  padding: 20px;
+  background-color: #f0f2f5;
+}
+h1, h2 {
+  color: #333;
+}
+form input, form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+a {
+  text-decoration: none;
+  color: #007BFF;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid #aaa;
+  padding: 8px;
+}
+th {
+  background-color: #ddd;
+}
+
+
+/* === Database Schema (MySQL) === */
+-- Run this in phpMyAdmin or MySQL CLI:
+CREATE DATABASE IF NOT EXISTS feedback_db;
+USE feedback_db;
+
+CREATE TABLE feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  course VARCHAR(100),
+  instructor VARCHAR(100),
+  message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
