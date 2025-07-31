@@ -23,5 +23,5 @@ A full-stack web application to collect and manage anonymous student feedback ab
 
 ---
 
-## 🚀 Project Structure
+
 
