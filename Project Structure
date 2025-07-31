@@ -1,0 +1,10 @@
+student-feedback-system/
+├── index.html
+├── feedback.html
+├── admin.php
+├── submit_feedback.php
+├── view_feedback.php
+├── style.css
+├── script.js
+└── db/
+    └── connection.php
